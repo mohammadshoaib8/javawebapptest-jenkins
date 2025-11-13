@@ -8,3 +8,7 @@ service:
   port: 9090
 
 containerPort: 9090
+serviceAccount:
+  create: true
+  annotations: {}
+  name: ""
