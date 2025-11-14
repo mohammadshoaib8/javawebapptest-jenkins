@@ -5,9 +5,9 @@ image:
 
 service:
   type: LoadBalancer
-  port: 9090
+  port: 8080
 
-containerPort: 9090
+containerPort: 8080
 
 serviceAccount:
   create: true
