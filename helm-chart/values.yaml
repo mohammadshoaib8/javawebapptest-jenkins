@@ -8,10 +8,12 @@ service:
   port: 9090
 
 containerPort: 9090
+
 serviceAccount:
   create: true
   annotations: {}
   name: ""
+
 ingress:
   enabled: false
   className: ""
@@ -22,3 +24,7 @@ ingress:
         - path: /
           pathType: ImplementationSpecific
   tls: []
+
+# Added this section to prevent Helm error
+httpRoute:
+  enabled: false
