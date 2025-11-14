@@ -28,3 +28,9 @@ ingress:
 # Added this section to prevent Helm error
 httpRoute:
   enabled: false
+autoscaling:
+  enabled: false
+  minReplicas: 1
+  maxReplicas: 5
+  targetCPUUtilizationPercentage: 80
+
