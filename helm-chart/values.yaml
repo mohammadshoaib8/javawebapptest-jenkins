@@ -6,6 +6,9 @@ image:
 service:
   type: LoadBalancer
   port: 8080
+  annotations:
+    service.beta.kubernetes.io/aws-load-balancer-type: "nlb"
+    service.beta.kubernetes.io/aws-load-balancer-scheme: "internet-facing"
 
 containerPort: 8080
 
