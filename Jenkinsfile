@@ -18,7 +18,7 @@ pipeline {
 
         stage('Code Cloning') {
             steps {
-                git credentialsId: '5344fe9e-333a-4e01-844b-fc56f14330fd', url: 'https://github.com/mohammadshoaib8/nodeapp-testrepo.git'
+                git credentialsId: '5344fe9e-333a-4e01-844b-fc56f14330fd', url: 'https://github.com/mohammadshoaib8/javawebapptest-jenkins.git'
             }
         }
 
