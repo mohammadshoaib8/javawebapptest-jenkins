@@ -1,64 +1,62 @@
 pipeline {
     agent any
-
     tools {
         maven 'maven3'
     }
-
     environment {
-        IMAGE_NAME   = "msshoaib2255457/javajenkinstest"
-        IMAGE_TAG    = "v${BUILD_NUMBER}"
-        AWS_REGION   = "ap-southeast-1"
-        CLUSTER_NAME = "karpenter-25-blueprints"
-        HELM_RELEASE = "mywebapp"
-        HELM_CHART   = "./helm-chart"
+        IMAGE_NAME = 'msshoaib2255457/javajenkinstest'
+        IMAGE_TAG = 'v${BUILD_NUMBER}'
+        AWS_REGION = 'ap-southeast-1'
+        CLUSTER_NAME = 'karpenter-25-blueprints'
+        HELM_CHART = './helm-chart'
+        HELM_RELEASE = 'mywebapp'
     }
-
     stages {
-
-        stage('Code Cloning') {
+        stage ('Git Checkout') {
             steps {
-                git credentialsId: '5344fe9e-333a-4e01-844b-fc56f14330fd', url: 'https://github.com/mohammadshoaib8/javawebapptest-jenkins.git'
+                echo "Cloning the latest code from github branch"
+                git branch: 'master', url: 'https://github.com/mohammadshoaib8/javawebapptest-jenkins.git'
             }
         }
-
-        stage('Build') {
+        stage ('Code Build') {
             steps {
-                sh 'mvn clean package -DskipTests'
+                echo "Compiling the project code"
+                sh 'mvn clean package -Dskiptests'
             }
         }
-
-        stage('Build Docker Image') {
+        stage ('Exicute unit tests') {
             steps {
+                echo "Exicuting the unit tests of project code"
+                sh "mvn test"
+            }
+        }
+        stage ('Code Quality Check - Sonarqube') {
+            steps {
+                echo "Checking code quality and bugs"
+                withSonarQubeEnv('sonarqube-server') {
+                    sh "mvn sonar:sonar -Dsonar.projectKey=javawebapptest"
+                }
+            }
+        }
+        stage ('Build Docker Image') {
+            steps {
+                echo "building the docker image"
                 sh """
                     docker build -t $IMAGE_NAME:$IMAGE_TAG .
                     docker tag $IMAGE_NAME:$IMAGE_TAG $IMAGE_NAME:latest
                 """
             }
         }
-
-        stage('Docker Image Push') {
+        stage ('Docker Image Push') {
             steps {
-                withDockerRegistry(credentialsId: 'dockerhub', url: 'https://index.docker.io/v1/') {
-                    sh """
-                        docker push $IMAGE_NAME:$IMAGE_TAG
-                        docker push $IMAGE_NAME:latest
-                    """
-                }
-            }
-        }
-
-        stage('App Deploy') {
-            steps {
-                withAWS(credentials: 'aws-creds', region: "${AWS_REGION}") {
-                    sh """
-                        aws eks update-kubeconfig --region $AWS_REGION --name $CLUSTER_NAME
-                        helm upgrade --install $HELM_RELEASE $HELM_CHART \
-                            --set image.repository=$IMAGE_NAME \
-                            --set image.tag=$IMAGE_TAG
-                    """
+                echo "Docker image push to docker hub"
+                withDockerRegistry(credentialsId: 'dockerhub', url: 'https://hub.docker.com/repository/docker/msshoaib2255457/javajenkinstest') {
+                sh """
+                    docker push $IMAGE_NAME:latest
+                """
                 }
             }
         }
     }
+    
 }
