@@ -25,7 +25,7 @@
             <scope>test</scope>
         </dependency>
 
-        <!-- Servlet API (needed for webapps) -->
+        <!-- Servlet API (Tomcat 9 compatible) -->
         <dependency>
             <groupId>javax.servlet</groupId>
             <artifactId>javax.servlet-api</artifactId>
@@ -43,7 +43,7 @@
 
         <plugins>
 
-            <!-- Java Compiler (VERY IMPORTANT) -->
+            <!-- Java Compiler -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
@@ -65,7 +65,7 @@
                 </configuration>
             </plugin>
 
-            <!-- SonarQube Scanner -->
+            <!-- SonarQube -->
             <plugin>
                 <groupId>org.sonarsource.scanner.maven</groupId>
                 <artifactId>sonar-maven-plugin</artifactId>
