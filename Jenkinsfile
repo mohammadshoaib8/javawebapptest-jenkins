@@ -10,6 +10,7 @@ pipeline {
         CLUSTER_NAME = 'karpenter-25-blueprints'
         HELM_CHART = './helm-chart'
         HELM_RELEASE = 'mywebapp'
+        K8S_NAMESPACE = 'demo'
     }
     stages {
         stage ('Git Checkout') {
@@ -50,10 +51,26 @@ pipeline {
         stage ('Docker Image Push') {
             steps {
                 echo "Docker image push to docker hub"
-                withDockerRegistry(credentialsId: 'dockerhub', url: 'https://hub.docker.com/repository/docker/msshoaib2255457/javajenkinstest') {
+                withDockerRegistry(credentialsId: 'dockerhub', url: 'https://index.docker.io/v1/') {
                 sh """
                     docker push $IMAGE_NAME:latest
                 """
+                }
+            }
+        }
+        stage ('Helm deploy') {
+            steps {
+                withAWS(credentials: 'aws-creds', region: 'ap-southeast-1') {
+                    sh """
+                        echo "Updating kubeconfig"
+                        aws eks update-kubeconfig --region ${AWS_REGION} --name ${CLUSTER_NAME}
+
+                        echo "Deploying with Helm"
+                        helm upgrade --install ${HELM_RELEASE} ${HELM_CHART} \
+                            --set image.repository=${IMAGE_NAME} \
+                            --set image.tag=${IMAGE_TAG} \
+                            --namespace ${K8S_NAMESPACE} --create-namespace
+                    """
                 }
             }
         }
